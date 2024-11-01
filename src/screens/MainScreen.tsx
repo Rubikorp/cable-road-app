@@ -37,6 +37,7 @@ const MainScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <Text style={styles.itemNumber}>{item.number}</Text>
             <Text style={styles.itemRepairs}>{item.repairs.length} ремонтов</Text>
           </TouchableOpacity>
+          
         )}
         contentContainerStyle={styles.listContainer}
       />

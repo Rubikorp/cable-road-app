@@ -1,20 +1,9 @@
+import { Text } from 'react-native';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface Repair {
-  id: string;
-  description: string;
-  photos: string[];
-}
-
-interface Pole {
-  id: string;
-  number: string;
-  repairs: Repair[];
-  photos: string[];
-}
+import {IPole, IRepair} from '../types/storeTypes'
 
 interface PolesState {
-  poles: Pole[];
+  poles: IPole[];
 }
 
 const initialState: PolesState = {
@@ -25,10 +14,10 @@ const polesSlice = createSlice({
   name: 'poles',
   initialState,
   reducers: {
-    addPole: (state, action: PayloadAction<Pole>) => {
+    addPole: (state, action: PayloadAction<IPole>) => {
       state.poles.push(action.payload);
     },
-    updatePole: (state, action: PayloadAction<Pole>) => {
+    updatePole: (state, action: PayloadAction<IPole>) => {
       const index = state.poles.findIndex((pole) => pole.id === action.payload.id);
       if (index !== -1) {
         state.poles[index] = action.payload;
