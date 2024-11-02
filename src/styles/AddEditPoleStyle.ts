@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#ccc',
       borderRadius: 4,
+      backgroundColor: 'rgba(207, 207, 207, 0.18)',
     },
     switchContainer: {
       flexDirection: 'row',

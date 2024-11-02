@@ -1,6 +1,6 @@
 import {View, Text, TextInput, Image} from 'react-native';
 import React, {Dispatch, SetStateAction, useState} from 'react';
-import styles from '../styles/AddEditPole_style';
+import styles from '../styles/AddEditPoleStyle';
 import {IRepair} from '../types/storeTypes';
 
 interface IProps {

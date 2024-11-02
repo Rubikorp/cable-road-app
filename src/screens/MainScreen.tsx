@@ -1,81 +1,101 @@
-import React, { useState } from 'react';
-import { View, Button, FlatList, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
-import { addPole } from '../store/polesSlice';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import React, {useState} from 'react';
+import {
+  View,
+  Button,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Image,
+} from 'react-native';
+import {addPole} from '../store/polesSlice';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
+import styles from '../styles/MainScreenStyle';
 
-const MainScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+const MainScreen: React.FC<{navigation: any}> = ({navigation}) => {
   const dispatch = useAppDispatch();
   const poles = useAppSelector(state => state.poles.poles);
-  
+
   // Состояние для поискового запроса
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Состояние для сортировки по номеру
+  const [sortByNumberAsc, setSortByNumberAsc] = useState(true);
+
+  // Состояние для сортировки по дате
+  const [sortByDateAsc, setSortByDateAsc] = useState(true);
+
   // Функция для фильтрации опор и ремонтов
-  const filteredPoles = poles.filter(pole => 
-    pole.number.includes(searchQuery) || 
-    pole.repairs.some(repair => repair.description.includes(searchQuery))
+  const filteredPoles = poles.filter(
+    pole =>
+      pole.number.includes(searchQuery) ||
+      pole.repairs.some(repair => repair.description.includes(searchQuery)),
   );
 
-  const handleAddPole = (newPole: { id: string; number: string; repairs: any[]; photos: any[] }) => {
+  // Функция для сортировки по номеру опоры
+  const sortedPoles = filteredPoles.sort((a, b) => {
+    const numberA = parseInt(a.number);
+    const numberB = parseInt(b.number);
+    return sortByNumberAsc ? numberA - numberB : numberB - numberA;
+  });
+
+  const handleAddPole = (newPole: {
+    id: string;
+    number: string;
+    repairs: any[];
+    photos: any[];
+  }) => {
     dispatch(addPole(newPole));
   };
 
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder="Поиск по номеру опоры или ремонту"
+        placeholder="Поиск по номеру опоры"
         value={searchQuery}
         onChangeText={setSearchQuery}
         style={styles.searchInput}
       />
-      <Button title="Добавить опору" onPress={() => navigation.navigate('AddEditPole', { addPole: handleAddPole })} />
+      {/* Кнопки фильтрации */}
+      <View style={styles.filterButtonsContainer}>
+        <Button
+          title={`Сортировать по номеру ${
+            sortByNumberAsc ? 'убыванию' : 'возрастанию'
+          }`}
+          onPress={() => setSortByNumberAsc(!sortByNumberAsc)}
+        />
+      </View>
+
       <FlatList
-        data={filteredPoles}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('AddEditPole', { pole: item })} style={styles.itemContainer}>
-            <Text style={styles.itemNumber}>{item.number}</Text>
-            <Text style={styles.itemRepairs}>{item.repairs.length} ремонтов</Text>
+        data={sortedPoles} // Используем отсортированный массив
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddEditPole', {pole: item})}
+            style={styles.itemContainer}>
+            <View style={styles.numberBox}>
+              <Image
+                source={require('../img/pole.png')}
+                style={{width: 10, height: 20}}
+              />
+              <Text style={styles.itemNumber}>{item.number}</Text>
+            </View>
+
+            <Text style={styles.itemRepairs}>
+              {item.repairs.length} ремонтов
+            </Text>
           </TouchableOpacity>
-          
         )}
         contentContainerStyle={styles.listContainer}
+      />
+      <Button
+        title="Добавить опору"
+        onPress={() =>
+          navigation.navigate('AddEditPole', {addPole: handleAddPole})
+        }
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  itemContainer: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  itemNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  itemRepairs: {
-    fontSize: 14,
-    color: '#666',
-  },
-  listContainer: {
-    paddingBottom: 16,
-  },
-});
 
 export default MainScreen;
