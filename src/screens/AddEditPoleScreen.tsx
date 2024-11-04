@@ -4,12 +4,10 @@ import {
   TextInput,
   Button,
   FlatList,
-  Image,
   Text,
   Switch,
-  PermissionsAndroid,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+// import {launchImageLibrary} from 'react-native-image-picker';
 import {useAppDispatch} from '../store/hooks';
 import {updatePole, deletePole} from '../store/polesSlice';
 import {PropsNavigation} from '../types/stackTypes';
@@ -17,6 +15,7 @@ import styles from '../styles/AddEditPoleStyle';
 import {IPole, IRepair} from '../types/storeTypes';
 
 import ModalConfirm from '../components/ModalConfirm';
+import ModalAddRepairs from '../components/ModalAddRepairs';
 // import {PhotoAndDsc} from '../components/PhotoAndDsc'; Не работает
 
 const AddEditPoleScreen: React.FC<
@@ -29,41 +28,42 @@ const AddEditPoleScreen: React.FC<
   const {pole, addPole} = route.params || {};
   const [number, setNumber] = useState<string>(pole ? pole.number : '');
   const [repairs, setRepairs] = useState<IRepair[]>(pole ? pole.repairs : []);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [modalVisibleAddRepair, setModalVisibleAddRepair] = useState<boolean>(false)
 
-  useEffect(() => {
-    requestStoragePermission();
-  }, []);
+  // useEffect(() => {
+  //   requestStoragePermission();
+  // }, []);
 
-  // функция получения доступа к галерее
-  const requestStoragePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: 'Доступ к галерее',
-          message:
-            'Мне нужен доступ к вашей галерее' + 'Для добавления фотографий',
-          buttonNeutral: 'Позже',
-          buttonNegative: 'Отмена',
-          buttonPositive: 'Ок',
-        },
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Storage permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+  // // функция получения доступа к галерее
+  // const requestStoragePermission = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'Доступ к галерее',
+  //         message:
+  //           'Мне нужен доступ к вашей галерее' + 'Для добавления фотографий',
+  //         buttonNeutral: 'Позже',
+  //         buttonNegative: 'Отмена',
+  //         buttonPositive: 'Ок',
+  //       },
+  //     );
+  //     if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log('Storage permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
 
   // функция создания ремонта
-  const handleAddRepair = () => {
+  const handleAddRepair = (dscr: string, urg: boolean) => {
     const newRepair: IRepair = {
       id: Date.now().toString(),
-      description: '',
-      photos: [],
-      urgent: false, // Изначально пометка срочности выключена
+      description: dscr,
+      urgent: urg, // Изначально пометка срочности выключена
+      completed: false, 
     };
     setRepairs(prev => [...prev, newRepair]);
   };
@@ -92,29 +92,29 @@ const AddEditPoleScreen: React.FC<
   };
 
   // функция выбора фотографии
-  const selectImage = (repairId: string) => {
-    launchImageLibrary({mediaType: 'photo'}, response => {
-      if (response.didCancel) {
-        // user отменил
-      } else if (response.errorMessage) {
-        console.log(response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const asset = response.assets[0];
-        const uri = asset.uri;
+  // const selectImage = (repairId: string) => {
+  //   launchImageLibrary({mediaType: 'photo'}, response => {
+  //     if (response.didCancel) {
+  //       // user отменил
+  //     } else if (response.errorMessage) {
+  //       console.log(response.errorMessage);
+  //     } else if (response.assets && response.assets.length > 0) {
+  //       const asset = response.assets[0];
+  //       const uri = asset.uri;
 
-        // Проверяем, что uri существует
-        if (uri) {
-          const updatedRepairs = repairs.map(repair =>
-            repair.id === repairId
-              ? {...repair, photos: [...repair.photos, {uri: uri, text: ''}]} // Добавляем только uri
-              : repair,
-          );
-          setRepairs(updatedRepairs);
-          console.log(updatedRepairs);
-        }
-      }
-    });
-  };
+  //       // Проверяем, что uri существует
+  //       if (uri) {
+  //         const updatedRepairs = repairs.map(repair =>
+  //           repair.id === repairId
+  //             ? {...repair, photos: [...repair.photos, {uri: uri, text: ''}]} // Добавляем только uri
+  //             : repair,
+  //         );
+  //         setRepairs(updatedRepairs);
+  //         console.log(updatedRepairs);
+  //       }
+  //     }
+  //   });
+  // };
 
   return (
     <View style={styles.container}>
@@ -124,8 +124,9 @@ const AddEditPoleScreen: React.FC<
         onChangeText={setNumber}
         style={styles.input}
       />
-      <Button title="Добавить ремонт" onPress={handleAddRepair} />
-      <FlatList
+      <Button title="Добавить ремонт" onPress={() => setModalVisibleAddRepair(true)} />
+        <ModalAddRepairs modalVisibleAddRepair={modalVisibleAddRepair} setModalVisibleAddRepair={setModalVisibleAddRepair} handleAddRepair={handleAddRepair}/>
+      {/* <FlatList
         data={repairs}
         keyExtractor={item => item.id}
         renderItem={({item}) => (
@@ -157,14 +158,14 @@ const AddEditPoleScreen: React.FC<
                 }}
               />
             </View>
-            {item.urgent && <Text style={styles.urgentSign}>⚠️</Text>}
-            <Button
+            {item.urgent && <Text style={styles.urgentSign}>⚠️</Text>} */}
+            {/* <Button
               title="Добавить фото"
               onPress={() => {
                 selectImage(item.id);
               }}
-            />
-            <FlatList
+            /> */}
+            {/* <FlatList
               data={item.photos}
               keyExtractor={photo => photo.uri}
               renderItem={({item: photoUri}) => (
@@ -175,9 +176,10 @@ const AddEditPoleScreen: React.FC<
                   />
                 </View>
               )}
-            />
-            <ModalConfirm handleDeleteRepair={handleDeleteRepair} itemId={item.id}  setModalVisible={setModalVisible} modalVisible={modalVisible} />
-            <Button
+            /> */}
+            {/* <ModalConfirm handleDeleteRepair={handleDeleteRepair} itemId={item.id}  setModalVisible={setModalVisible} modalVisible={modalVisible} /> */}
+            
+            {/* <Button
               title="Удалить ремонт"
               onPress={() => setModalVisible(true)}
             />
@@ -199,7 +201,7 @@ const AddEditPoleScreen: React.FC<
             navigation.navigate('Main');
           }}
         />
-      )}
+      )} */}
     </View>
   );
 };

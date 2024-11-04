@@ -1,8 +1,8 @@
 interface IRepair {
     id: string;
     description: string;
-    photos: {uri: string, text: string}[];
     urgent: boolean;
+    completed: boolean;
   }
   
   interface IPole {
