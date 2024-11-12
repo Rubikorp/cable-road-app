@@ -15,38 +15,28 @@ import {IRepair} from '../types/storeTypes';
 import {basisBtn, basisStyle} from '../styles/basisStyle';
 
 interface IProps {
-  modalVisibleAddRepair: boolean; // Видимость модального окна
-  setModalVisibleAddRepair: Dispatch<SetStateAction<boolean>>; // Функция для изменения видимости модального окна
-  handleAddRepair(description: string, isUrgent: boolean): void; // Функция для добавления нового ремонта
-  repair?: IRepair; // Объект ремонта для редактирования (если есть)
-  updateUrgent?(item: IRepair, isUrgent: boolean): void; // Функция для обновления срочности ремонта
-  updateRepair?(description: string, item: IRepair): void; // Функция для обновления ремонта
-  handleDelete?(id: string): void; // Функция для удаления ремонта
+  modalVisibleUpdateRepair: boolean; // Видимость модального окна при обновлении
+  setModalVisibleUpdateRepair: Dispatch<SetStateAction<boolean>>; // Функция для изменения видимости модального окна при обновлении
+  repair: IRepair; // Объект ремонта для редактирования (если есть)
+  updateUrgent(itemId: string, isUrgent: boolean): void; // Функция для обновления срочности ремонта
+  updateRepair(description: string, itemId: string): void; // Функция для обновления ремонта
 }
 
-const ModalAddRepairs: React.FC<IProps> = ({
-  modalVisibleAddRepair,
-  setModalVisibleAddRepair,
-  handleAddRepair,
+const ModalUpdateRepairs: React.FC<IProps> = ({
+  modalVisibleUpdateRepair,
+  setModalVisibleUpdateRepair,
   repair,
   updateRepair,
   updateUrgent,
-  handleDelete,
 }) => {
   const [description, setDescription] = useState<string>(
-    repair ? repair.description : '',
+    repair.description
   ); // Хранит текст описания ремонта
   const [isUrgent, setIsUrgent] = useState<boolean>(
     repair ? repair.urgent : false,
   ); // Хранит состояние срочности
   const [suggestions, setSuggestions] = useState<string[]>([]); // Хранит текущие подсказки
   const fadeAnim = useRef(new Animated.Value(0)).current; // Анимация прозрачности
-
-  // Сброс состояния ввода
-  const resetInputState = () => {
-    setDescription('');
-    setIsUrgent(false);
-  };
 
   // Предустановленные данные для подсказок
   const predefinedSuggestions: string[] = [
@@ -99,26 +89,9 @@ const ModalAddRepairs: React.FC<IProps> = ({
   // Обновление существующего ремонта
   const updateExistingRepair = () => {
     if (repair) {
-      updateRepair && updateRepair(description, repair);
-      updateUrgent && updateUrgent(repair, isUrgent);
-      resetInputState();
-      setModalVisibleAddRepair(false);
-    }
-  };
-
-  // Добавление нового ремонта
-  const addNewRepair = () => {
-    handleAddRepair(description, isUrgent);
-    resetInputState();
-    setModalVisibleAddRepair(false);
-  };
-
-  // Удаление ремонта
-  const deleteRepair = () => {
-    if (repair) {
-      handleDelete && handleDelete(repair.id);
-      resetInputState();
-      setModalVisibleAddRepair(false);
+      updateRepair(description, repair.id);
+      updateUrgent(repair.id, isUrgent);
+      setModalVisibleUpdateRepair(false);
     }
   };
 
@@ -144,8 +117,10 @@ const ModalAddRepairs: React.FC<IProps> = ({
     <Modal
       animationType="fade"
       transparent={true}
-      visible={modalVisibleAddRepair}
-      onRequestClose={() => setModalVisibleAddRepair(!modalVisibleAddRepair)}>
+      visible={modalVisibleUpdateRepair}
+      onRequestClose={() =>
+        setModalVisibleUpdateRepair(!modalVisibleUpdateRepair)
+      }>
       <BlurView
         style={styles.absolute}
         blurType="light" // Тип размытия (light, dark и т.д.)
@@ -157,7 +132,7 @@ const ModalAddRepairs: React.FC<IProps> = ({
           <TextInput
             style={basisStyle.textInputModal}
             placeholderTextColor={'#BDBDBD'}
-            value={repair ? repair.description : description} // Используем существующее описание, если доступно
+            value={description} // Используем существующее описание
             onChangeText={handleInputChange} // Устанавливаем обработчик текста
             placeholder="Введите тип ремонта"
           />
@@ -192,15 +167,8 @@ const ModalAddRepairs: React.FC<IProps> = ({
           <View style={styles.btnContainer}>
             <TouchableOpacity
               style={[basisBtn.btn, basisBtn.btnAdd]}
-              onPress={repair ? updateExistingRepair : addNewRepair}>
+              onPress={updateExistingRepair}>
               <Text style={basisBtn.btnText}>Сохранить</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[basisBtn.btn, basisBtn.btnDelete]}
-              onPress={
-                repair ? deleteRepair : () => setModalVisibleAddRepair(false)
-              }>
-              <Text style={basisBtn.btnText}>Удалить</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -275,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ModalAddRepairs;
+export default ModalUpdateRepairs;
