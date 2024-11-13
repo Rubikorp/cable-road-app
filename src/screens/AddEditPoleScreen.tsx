@@ -33,12 +33,12 @@ const AddEditPoleScreen: React.FC<
   const {pole, addPole} = route.params || {};
   const [number, setNumber] = useState<string>(pole ? pole.number : '');
   const [repairs, setRepairs] = useState<IRepair[]>(pole ? pole.repairs : []);
-  const [filterRepair, setFilterRepair] = useState<IRepair[]>()
-  const [isCompleted, setIsCompleted] = useState<boolean>(false)
+  const [filterRepair, setFilterRepair] = useState<IRepair[]>();
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalVisibleAddRepair, setModalVisibleAddRepair] =
     useState<boolean>(false);
-    const [modalVisibleUpdateRepair, setModalVisibleUpdateRepair] =
+  const [modalVisibleUpdateRepair, setModalVisibleUpdateRepair] =
     useState<boolean>(false);
 
   // функция создания ремонта
@@ -55,11 +55,11 @@ const AddEditPoleScreen: React.FC<
   const handleDeleteRepair = (id: string) => {
     setRepairs(repairs.filter(item => item.id !== id));
   };
-  
+
   const handleCompleteRepair = (bool: boolean) => {
-    setFilterRepair(repairs.filter(item => item.completed === bool))
-  } 
-  useEffect(()=>handleCompleteRepair(isCompleted), [isCompleted, repairs])
+    setFilterRepair(repairs.filter(item => item.completed === bool));
+  };
+  useEffect(() => handleCompleteRepair(isCompleted), [isCompleted, repairs]);
 
   // функция сохранения ремонта опоры
   const handleSave = () => {
@@ -89,7 +89,9 @@ const AddEditPoleScreen: React.FC<
 
   const updateComplete = (item: IRepair) => {
     const updatedRepairs = repairs.map(repair =>
-      repair.id === item.id ? {...repair, completed: !repair.completed} : repair,
+      repair.id === item.id
+        ? {...repair, completed: !repair.completed}
+        : repair,
     );
     setRepairs(updatedRepairs);
   };
@@ -118,24 +120,30 @@ const AddEditPoleScreen: React.FC<
           <Text style={basisBtn.btnText}>Добавить ремонт</Text>
         </TouchableOpacity>
 
-        <StyledSwitch setCompleted={setIsCompleted}/>
+        <StyledSwitch setCompleted={setIsCompleted} />
 
-        <FlatList
-          data={filterRepair}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <View>
-              <RepairComponent repair={item} setModalVisibleUpdateRepair={setModalVisibleUpdateRepair} updateComplete={updateComplete}/>
-              <ModalUpdateRepairs
-                modalVisibleUpdateRepair={modalVisibleUpdateRepair}
-                setModalVisibleUpdateRepair={setModalVisibleUpdateRepair}
-                repair={item}
-                updateUrgent={updateUrgent}
-                updateRepair={updateRepair}
-              />
-            </View>
-          )}
-        />
+        <View style={styles.listContainer}>
+          <FlatList
+            data={filterRepair}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => (
+              <View>
+                <RepairComponent
+                  repair={item}
+                  setModalVisibleUpdateRepair={setModalVisibleUpdateRepair}
+                  updateComplete={updateComplete}
+                />
+                <ModalUpdateRepairs
+                  modalVisibleUpdateRepair={modalVisibleUpdateRepair}
+                  setModalVisibleUpdateRepair={setModalVisibleUpdateRepair}
+                  repair={item}
+                  updateUrgent={updateUrgent}
+                  updateRepair={updateRepair}
+                />
+              </View>
+            )}
+          />
+        </View>
       </View>
 
       <View style={basisStyle.containerBtnBottom}>
@@ -164,56 +172,8 @@ const AddEditPoleScreen: React.FC<
         modalVisibleAddRepair={modalVisibleAddRepair}
         setModalVisibleAddRepair={setModalVisibleAddRepair}
         handleAddRepair={handleAddRepair}
-        // repair={item}
-        // updateUrgent={updateUrgent}
-        // updateRepair={updateRepair}
       />
-      {/* <FlatList
-        data={repairs}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          
-        )}
-      /> */}
     </View>
-    //           {/* <FlatList
-    //             data={item.photos}
-    //             keyExtractor={photo => photo.uri}
-    //             renderItem={({item: photoUri}) => (
-    //               <View>
-    //                 <Image
-    //                   source={{uri: photoUri.uri}}
-    //                   style={{width: 200, height: 200}}
-    //                 />
-    //               </View>
-    //             )}
-    //           /> */}
-    //           // <ModalConfirm handleDeleteRepair={handleDeleteRepair} itemId={item.id}  setModalVisible={setModalVisible} modalVisible={modalVisible} />
-
-    //     //        <Button
-    //     //         title="Удалить ремонт"
-    //     //         onPress={() => setModalVisible(true)}
-    //     //       />
-    //     //     </View>
-    //     //   )}
-    //     // />
-    //     // <Button
-    //     //   title="Сохранить"
-    //     //   onPress={() => {
-    //     //     handleSave();
-    //     //     navigation.navigate('Main');
-    //     //   }}
-    //     // />
-    //     // {pole && (
-    //     //   <Button
-    //     //     title="Удалить"
-    //     //     onPress={() => {
-    //     //       handleDelete(pole.id);
-    //     //       navigation.navigate('Main');
-    //     //     }}
-    //     //   />
-    //     )}
-    //   </View>
   );
 };
 
@@ -224,4 +184,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   buttonAddRepair: {},
+  listContainer: {
+    maxHeight: 400,
+  },
 });

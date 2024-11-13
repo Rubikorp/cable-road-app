@@ -7,10 +7,13 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  StyleSheet,
 } from 'react-native';
 import {addPole} from '../store/polesSlice';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
-import styles from '../styles/MainScreenStyle';
+import {basisBtn, basisStyle} from '../styles/basisStyle';
+
+import PoleComponent from '../components/PoleComponent';
 
 const MainScreen: React.FC<{navigation: any}> = ({navigation}) => {
   const dispatch = useAppDispatch();
@@ -49,53 +52,53 @@ const MainScreen: React.FC<{navigation: any}> = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Поиск по номеру опоры"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={styles.searchInput}
-      />
-      {/* Кнопки фильтрации */}
-      <View style={styles.filterButtonsContainer}>
-        <Button
-          title={`Сортировать по номеру ${
-            sortByNumberAsc ? 'убыванию' : 'возрастанию'
-          }`}
-          onPress={() => setSortByNumberAsc(!sortByNumberAsc)}
+    <View style={basisStyle.containerScreen}>
+      <View style={styles.containerTop}>
+        <TextInput
+          placeholder="Поиск..."
+          placeholderTextColor={'#BDBDBD'}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          style={basisStyle.textInp}
         />
+        {/* Кнопки фильтрации */}
+        <TouchableOpacity
+          style={[basisBtn.btnSort, basisBtn.btn]}
+          onPress={() => setSortByNumberAsc(!sortByNumberAsc)}>
+          {' '}
+          <Text style={basisBtn.btnText}>Сортировать</Text>
+        </TouchableOpacity>
+
+        <View style={styles.listContainer}>
+          <FlatList
+            data={sortedPoles} // Используем отсортированный массив
+            keyExtractor={item => item.id}
+            renderItem={({item}) => (
+              <PoleComponent pole={item} navigation={navigation} />
+            )}
+          />
+        </View>
       </View>
 
-      <FlatList
-        data={sortedPoles} // Используем отсортированный массив
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('AddEditPole', {pole: item})}
-            style={styles.itemContainer}>
-            <View style={styles.numberBox}>
-              <Image
-                source={require('../img/pole.png')}
-                style={{width: 10, height: 20}}
-              />
-              <Text style={styles.itemNumber}>{item.number}</Text>
-            </View>
-
-            <Text style={styles.itemRepairs}>
-              {item.repairs.length} ремонтов
-            </Text>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContainer}
-      />
-      <Button
-        title="Добавить опору"
+      <TouchableOpacity
+        style={[basisBtn.btn, basisBtn.btnSave]}
         onPress={() =>
           navigation.navigate('AddEditPole', {addPole: handleAddPole})
-        }
-      />
+        }>
+        {' '}
+        <Text style={basisBtn.btnText}>Добавить</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 export default MainScreen;
+
+const styles = StyleSheet.create({
+  containerTop: {
+    gap: 16,
+  },
+  listContainer: {
+    maxHeight: 500
+  },
+});
