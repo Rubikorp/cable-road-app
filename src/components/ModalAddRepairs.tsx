@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFF1C2',
+    backgroundColor: '#f1f1f1',
     borderRadius: 8,
     padding: 14,
     // iOS

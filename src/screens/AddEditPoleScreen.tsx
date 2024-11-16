@@ -23,6 +23,11 @@ import StyledSwitch from '../components/StyledSwitch';
 
 import {basisStyle, basisBtn} from '../styles/basisStyle';
 
+type TConfDel = {
+  text: 'repair' | 'pole' | ''
+  id: string
+}
+
 const AddEditPoleScreen: React.FC<
   {
     route: any;
@@ -35,11 +40,16 @@ const AddEditPoleScreen: React.FC<
   const [repairs, setRepairs] = useState<IRepair[]>(pole ? pole.repairs : []);
   const [filterRepair, setFilterRepair] = useState<IRepair[]>();
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [confDel, setConfDel] = useState<TConfDel>({
+    text: '',
+    id: '',
+  })
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalVisibleAddRepair, setModalVisibleAddRepair] =
     useState<boolean>(false);
   const [modalVisibleUpdateRepair, setModalVisibleUpdateRepair] =
     useState<boolean>(false);
+
 
   // функция создания ремонта
   const handleAddRepair = (dscr: string, urg: boolean) => {
@@ -103,6 +113,21 @@ const AddEditPoleScreen: React.FC<
     setRepairs(updatedRepairs);
   };
 
+  const useConfDel = () => {
+    let {text, id} = confDel
+    if (text === 'pole') {
+      handleDelete(id) 
+      navigation.navigate('Main')
+    }
+    text === 'repair' && handleDeleteRepair(id)
+    setModalVisible(false)
+  }
+
+  const openConfModal = (text: 'pole' | 'repair', id: string) => {
+    setModalVisible(true)
+    setConfDel({text: text, id: id})
+  }
+
   return (
     <View style={basisStyle.containerScreen}>
       <View style={styles.containerTop}>
@@ -132,6 +157,7 @@ const AddEditPoleScreen: React.FC<
                   repair={item}
                   setModalVisibleUpdateRepair={setModalVisibleUpdateRepair}
                   updateComplete={updateComplete}
+                  openConfModal={openConfModal}
                 />
                 <ModalUpdateRepairs
                   modalVisibleUpdateRepair={modalVisibleUpdateRepair}
@@ -160,8 +186,7 @@ const AddEditPoleScreen: React.FC<
           <TouchableOpacity
             style={[basisBtn.btn, basisBtn.btnDelete]}
             onPress={() => {
-              handleDelete(pole.id);
-              navigation.navigate('Main');
+              openConfModal("pole", pole.id)
             }}>
             <Text style={basisBtn.btnText}>Удалить</Text>
           </TouchableOpacity>
@@ -173,6 +198,14 @@ const AddEditPoleScreen: React.FC<
         setModalVisibleAddRepair={setModalVisibleAddRepair}
         handleAddRepair={handleAddRepair}
       />
+
+      <ModalConfirm 
+        setModalVisible={setModalVisible}
+        modalVisible={modalVisible}
+        useConfDel={useConfDel}
+      />
+
+
     </View>
   );
 };

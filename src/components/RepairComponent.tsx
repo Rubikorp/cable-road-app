@@ -8,12 +8,14 @@ interface IProps {
   repair: IRepair;
   setModalVisibleUpdateRepair: Dispatch<SetStateAction<boolean>>;
   updateComplete(repair: IRepair): void;
+  openConfModal(text: 'repair', id: string): void
 }
 
 const RepairComponent: React.FC<IProps> = ({
   repair,
   setModalVisibleUpdateRepair,
   updateComplete,
+  openConfModal
 }) => {
   return (
     <View
@@ -51,7 +53,7 @@ const RepairComponent: React.FC<IProps> = ({
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.btn, styles.btnDelete]}>
+        <TouchableOpacity style={[styles.btn, styles.btnDelete]} onPress={()=>openConfModal("repair",repair.id)}>
           <Image
             style={styles.imgBtnDelete}
             source={require('../img/delete.svg')}

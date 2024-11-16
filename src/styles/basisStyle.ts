@@ -40,6 +40,7 @@ const basisStyle = StyleSheet.create({
     flex: 1,
     padding: 16,
     justifyContent: 'space-between',
+    backgroundColor: "#fff",
   },
   textInp: {
     padding: 16,
@@ -54,13 +55,45 @@ const basisStyle = StyleSheet.create({
     fontSize: 14,
     color: '#000',
   },
-  dscPriority:{
+  dscPriority: {
     fontSize: 14,
-    color: "#ec221f"
+    color: '#ec221f',
   },
   containerBtnBottom: {
     gap: 16,
+  },
+});
+
+const navigationStyle = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    position: 'relative',
+  },
+  header: {
+    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: '600',
+    color: '#000',
+  },
+  goBack: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#32ade6',
+  },
+  goBackContainer: {
+    position: 'absolute',
+    left: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imgBack: {
+    height: 10,
+    width: 5,
+    marginRight: 7
   }
 });
 
-export {basisBtn, basisStyle};
+export {basisBtn, basisStyle, navigationStyle};
