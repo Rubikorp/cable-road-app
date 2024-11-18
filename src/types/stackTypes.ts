@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
+    "Auth": undefined;
     "Main": undefined;
     "AddEditPoleScreen": undefined;
     "RepairsListScreen": undefined;  
