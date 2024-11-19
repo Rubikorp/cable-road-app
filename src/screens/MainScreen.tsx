@@ -81,12 +81,12 @@ const MainScreen: React.FC<{navigation: any}> = ({navigation}) => {
       </View>
 
       <TouchableOpacity
-        style={[basisBtn.btn, basisBtn.btnSave]}
+        style={[basisBtn.btn, basisBtn.btnSave, styles.btnAdd]}
         onPress={() =>
           navigation.navigate('AddEditPole', {addPole: handleAddPole})
         }>
         {' '}
-        <Text style={basisBtn.btnText}>Добавить</Text>
+        <Image style={styles.btnAddImage} source={require('../img/Plus.png')}/>
       </TouchableOpacity>
     </View>
   );
@@ -98,7 +98,22 @@ const styles = StyleSheet.create({
   containerTop: {
     gap: 16,
   },
+  container: {
+    position: "relative",
+  },
+  btnAdd: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  btnAddImage: {
+    height: 31,
+    width: 31
+  },
   listContainer: {
-    maxHeight: 500
+    maxHeight: 600
   },
 });

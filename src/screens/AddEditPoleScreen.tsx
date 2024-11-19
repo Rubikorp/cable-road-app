@@ -21,12 +21,16 @@ import ModalUpdateRepairs from '../components/ModalUpdateRepairs';
 import RepairComponent from '../components/RepairComponent';
 import StyledSwitch from '../components/StyledSwitch';
 
+import {useMemo, useCallback} from 'react';
+
 import {basisStyle, basisBtn} from '../styles/basisStyle';
 
+import formatDate from '../utils/formatDate';
+
 type TConfDel = {
-  text: 'repair' | 'pole' | ''
-  id: string
-}
+  text: 'repair' | 'pole' | '';
+  id: string;
+};
 
 const AddEditPoleScreen: React.FC<
   {
@@ -38,38 +42,38 @@ const AddEditPoleScreen: React.FC<
   const {pole, addPole} = route.params || {};
   const [number, setNumber] = useState<string>(pole ? pole.number : '');
   const [repairs, setRepairs] = useState<IRepair[]>(pole ? pole.repairs : []);
-  const [filterRepair, setFilterRepair] = useState<IRepair[]>();
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [confDel, setConfDel] = useState<TConfDel>({
     text: '',
     id: '',
-  })
+  });
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalVisibleAddRepair, setModalVisibleAddRepair] =
     useState<boolean>(false);
   const [modalVisibleUpdateRepair, setModalVisibleUpdateRepair] =
     useState<boolean>(false);
 
+  const filterRepair = useMemo((completed: boolean = false) => {
+    return repairs.filter(item => item.completed === isCompleted);
+  }, [isCompleted, repairs]);
+  
 
   // функция создания ремонта
-  const handleAddRepair = (dscr: string, urg: boolean) => {
+  const handleAddRepair = useCallback((dscr: string, urg: boolean) => {
     const newRepair: IRepair = {
       id: Date.now().toString(),
       description: dscr,
-      urgent: urg, // Изначально пометка срочности выключена
+      urgent: urg,
       completed: false,
+      date: formatDate(new Date()),
+      dateComplete: '',
     };
     setRepairs(prev => [...prev, newRepair]);
-  };
+  }, []);
 
   const handleDeleteRepair = (id: string) => {
     setRepairs(repairs.filter(item => item.id !== id));
   };
-
-  const handleCompleteRepair = (bool: boolean) => {
-    setFilterRepair(repairs.filter(item => item.completed === bool));
-  };
-  useEffect(() => handleCompleteRepair(isCompleted), [isCompleted, repairs]);
 
   // функция сохранения ремонта опоры
   const handleSave = () => {
@@ -90,43 +94,56 @@ const AddEditPoleScreen: React.FC<
     dispatch(deletePole(id));
   };
 
-  const updateUrgent = (itemId: string, urg: boolean) => {
-    const updatedRepairs = repairs.map(repair =>
-      repair.id === itemId ? {...repair, urgent: urg} : repair,
-    );
-    setRepairs(updatedRepairs);
-  };
+ 
 
   const updateComplete = (item: IRepair) => {
-    const updatedRepairs = repairs.map(repair =>
-      repair.id === item.id
-        ? {...repair, completed: !repair.completed}
-        : repair,
-    );
+    const updatedRepairs = repairs.map(repair => {
+      if (repair.id === item.id) {
+        const completed = !repair.completed;
+        return {
+          ...repair,
+          completed,
+          dateComplete: completed ? formatDate(new Date()) : '',
+        };
+      }
+      return repair;
+    });
+
+    // Проверяем, изменилось ли состояние
+    if (JSON.stringify(updatedRepairs) !== JSON.stringify(repairs)) {
+      setRepairs(updatedRepairs);
+    }
+  };
+
+  const updateRepair = (text: string, itemId: string, urg?: boolean) => {
+    const updatedRepairs = repairs.map(repair => {
+      if (repair.id === itemId) {
+        return {
+          ...repair,
+          ...(text && { description: text }),
+          ...(urg !== undefined && { urgent: urg })
+        };
+      }
+      return repair;
+    });
     setRepairs(updatedRepairs);
   };
 
-  const updateRepair = (text: string, itemId: string) => {
-    const updatedRepairs = repairs.map(repair =>
-      repair.id === itemId ? {...repair, description: text} : repair,
-    );
-    setRepairs(updatedRepairs);
-  };
 
   const useConfDel = () => {
-    let {text, id} = confDel
+    let {text, id} = confDel;
     if (text === 'pole') {
-      handleDelete(id) 
-      navigation.navigate('Main')
+      handleDelete(id);
+      navigation.navigate('Main');
     }
-    text === 'repair' && handleDeleteRepair(id)
-    setModalVisible(false)
-  }
+    text === 'repair' && handleDeleteRepair(id);
+    setModalVisible(false);
+  };
 
   const openConfModal = (text: 'pole' | 'repair', id: string) => {
-    setModalVisible(true)
-    setConfDel({text: text, id: id})
-  }
+    setModalVisible(true);
+    setConfDel({text: text, id: id});
+  };
 
   return (
     <View style={basisStyle.containerScreen}>
@@ -145,7 +162,7 @@ const AddEditPoleScreen: React.FC<
           <Text style={basisBtn.btnText}>Добавить ремонт</Text>
         </TouchableOpacity>
 
-        <StyledSwitch setCompleted={setIsCompleted} />
+        <StyledSwitch setIsCompleted={setIsCompleted} isCompleted={isCompleted} />
 
         <View style={styles.listContainer}>
           <FlatList
@@ -163,7 +180,6 @@ const AddEditPoleScreen: React.FC<
                   modalVisibleUpdateRepair={modalVisibleUpdateRepair}
                   setModalVisibleUpdateRepair={setModalVisibleUpdateRepair}
                   repair={item}
-                  updateUrgent={updateUrgent}
                   updateRepair={updateRepair}
                 />
               </View>
@@ -186,7 +202,7 @@ const AddEditPoleScreen: React.FC<
           <TouchableOpacity
             style={[basisBtn.btn, basisBtn.btnDelete]}
             onPress={() => {
-              openConfModal("pole", pole.id)
+              openConfModal('pole', pole.id);
             }}>
             <Text style={basisBtn.btnText}>Удалить</Text>
           </TouchableOpacity>
@@ -199,13 +215,11 @@ const AddEditPoleScreen: React.FC<
         handleAddRepair={handleAddRepair}
       />
 
-      <ModalConfirm 
+      <ModalConfirm
         setModalVisible={setModalVisible}
         modalVisible={modalVisible}
         useConfDel={useConfDel}
       />
-
-
     </View>
   );
 };

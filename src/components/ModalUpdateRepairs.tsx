@@ -18,8 +18,7 @@ interface IProps {
   modalVisibleUpdateRepair: boolean; // Видимость модального окна при обновлении
   setModalVisibleUpdateRepair: Dispatch<SetStateAction<boolean>>; // Функция для изменения видимости модального окна при обновлении
   repair: IRepair; // Объект ремонта для редактирования (если есть)
-  updateUrgent(itemId: string, isUrgent: boolean): void; // Функция для обновления срочности ремонта
-  updateRepair(description: string, itemId: string): void; // Функция для обновления ремонта
+  updateRepair(description: string, itemId: string, urg?: boolean): void; // Функция для обновления ремонта
 }
 
 const ModalUpdateRepairs: React.FC<IProps> = ({
@@ -27,7 +26,6 @@ const ModalUpdateRepairs: React.FC<IProps> = ({
   setModalVisibleUpdateRepair,
   repair,
   updateRepair,
-  updateUrgent,
 }) => {
   const [description, setDescription] = useState<string>(
     repair.description
@@ -89,8 +87,7 @@ const ModalUpdateRepairs: React.FC<IProps> = ({
   // Обновление существующего ремонта
   const updateExistingRepair = () => {
     if (repair) {
-      updateRepair(description, repair.id);
-      updateUrgent(repair.id, isUrgent);
+      updateRepair(description, repair.id, isUrgent);
       setModalVisibleUpdateRepair(false);
     }
   };

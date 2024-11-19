@@ -1,56 +1,27 @@
-import React, {useState, Dispatch, SetStateAction} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Animated} from 'react-native';
+import React, {
+  Dispatch,
+  SetStateAction,
+} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 interface IProps {
-  setCompleted:Dispatch<SetStateAction<boolean>>
+  setIsCompleted: Dispatch<SetStateAction<boolean>>;
+  isCompleted: boolean;
 }
 
-const StyledSwitch: React.FC<IProps> = ({setCompleted}) => {
-  // Состояние для отслеживания положения переключателя
-  const [isCompleted, setIsCompleted] = useState<boolean>(false);
-
-  // Создаем анимационное значение
-  const [indicatorPosition] = useState(new Animated.Value(0)); // Начальная позиция
-  const [indicatorColor] = useState(new Animated.Value(0));
-
-  // Обработчик нажатия
-  const toggleSwitch = () => {
-    setIsCompleted(!isCompleted);
-    setCompleted(!isCompleted);
-
-    // Анимация перемещения индикатора
-    Animated.parallel([
-      Animated.timing(indicatorPosition, {
-        toValue: isCompleted ? 0 : 180,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(indicatorColor, {
-        toValue: isCompleted ? 0 : 1, // Изменяем значение для перехода цвета
-        duration: 300,
-        useNativeDriver: false,
-      })
-    ]).start();
-  };
-
-  const backgroundColorInterpolation = indicatorColor.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['rgba(179, 38, 30, 0.16)', 'rgba(0, 153, 81, 0.28)'], // Цвета для невыполненного и выполненного состояния
-});
-
+const StyledSwitch: React.FC<IProps> = ({setIsCompleted, isCompleted}) => {
   return (
-    <TouchableOpacity
-      style={
-        styles.switch}
-      onPress={toggleSwitch}>
-      <View style={styles.containerTxt}>
+    <View style={styles.switch}>
+      <TouchableOpacity style={[styles.containerTxt, isCompleted ? '' : styles.unCompleteColor]} onPress={()=>setIsCompleted(false)}>
         <Text
           style={[
             styles.switchText,
             isCompleted ? styles.defaultTxt : styles.txtUnComplete,
           ]}>
-          Невыполнено
+          Ремонт
         </Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.containerTxt, isCompleted ? styles.completeColor : '']} onPress={()=>setIsCompleted(true)}>
         <Text
           style={[
             styles.switchText,
@@ -58,44 +29,35 @@ const StyledSwitch: React.FC<IProps> = ({setCompleted}) => {
           ]}>
           Выполнено
         </Text>
-      </View>
-
-      <Animated.View
-        style={[styles.indicator, { left: indicatorPosition, backgroundColor: backgroundColorInterpolation }]}></Animated.View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {},
-  containerTxt: {
-    flexDirection: 'row',
-    alignContent: 'center',
-  },
   switch: {
-    paddingTop: 16,
-    paddingBottom: 16,
+    flexDirection: 'row',
     borderRadius: 100,
     backgroundColor: '#f6f6f6',
     borderWidth: 1,
     borderColor: '#e8e8e8',
-    position: 'relative',
   },
-  completed: {
-    backgroundColor: 'rgba(0, 153, 81, 0.28)',
+  containerTxt: {
+    flex: 1,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderRadius: 100,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignContent: 'center',
   },
-  notCompleted: {
-    backgroundColor: 'rgba(179, 38, 30, 0.16)',
+  unCompleteColor: {
+    backgroundColor: ' rgba(179, 38, 30, 0.16)'
   },
-  indicator: {
-    position: 'absolute',
-    width: "50%",
-    height: "250%",
-    borderRadius: 100,// Отступ от верхнего края
+  completeColor: {
+    backgroundColor: ' rgba(0, 153, 81, 0.28)'
   },
   switchText: {
-    flex: 1,
-    textAlign: 'center',
     fontSize: 16,
   },
   txtComplete: {

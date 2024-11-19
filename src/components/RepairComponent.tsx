@@ -8,14 +8,14 @@ interface IProps {
   repair: IRepair;
   setModalVisibleUpdateRepair: Dispatch<SetStateAction<boolean>>;
   updateComplete(repair: IRepair): void;
-  openConfModal(text: 'repair', id: string): void
+  openConfModal(text: 'repair', id: string): void;
 }
 
-const RepairComponent: React.FC<IProps> = ({
+const RepairComponent: React.FC<IProps> = React.memo(({
   repair,
   setModalVisibleUpdateRepair,
   updateComplete,
-  openConfModal
+  openConfModal,
 }) => {
   return (
     <View
@@ -28,9 +28,16 @@ const RepairComponent: React.FC<IProps> = ({
           <Text style={[basisStyle.dsc, styles.dscMax]}>
             {repair.description}
           </Text>
-          {repair.urgent && (
-            <Text style={basisStyle.dscPriority}>приоритет</Text>
-          )}
+          <View style={styles.urgDateContainer}>
+            {repair.urgent && (
+              <Text style={basisStyle.dscPriority}>приоритет</Text>
+            )}
+            {repair.dateComplete ? (
+              <Text style={styles.dateComplete}>{repair.dateComplete}</Text>
+            ) : (
+              <Text style={styles.date}>{repair.date}</Text>
+            )}
+          </View>
         </TouchableOpacity>
       </View>
       <View style={styles.btnContainer}>
@@ -49,20 +56,22 @@ const RepairComponent: React.FC<IProps> = ({
             onPress={() => updateComplete(repair)}>
             <Image
               style={styles.imgBtnComplete}
-              source={require('../img/complete.svg')}
+              source={require('../img/complete.png')}
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.btn, styles.btnDelete]} onPress={()=>openConfModal("repair",repair.id)}>
+        <TouchableOpacity
+          style={[styles.btn, styles.btnDelete]}
+          onPress={() => openConfModal('repair', repair.id)}>
           <Image
             style={styles.imgBtnDelete}
-            source={require('../img/delete.svg')}
+            source={require('../img/delete.png')}
           />
         </TouchableOpacity>
       </View>
     </View>
   );
-};
+});
 
 export default RepairComponent;
 
@@ -120,4 +129,24 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
+  urgDateContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 15
+  },
+  date: {
+    padding: 2,
+    borderRadius: 2,
+    fontSize: 14,
+    color: '#fff',
+    backgroundColor: '#C00F0C'
+  },
+  dateComplete: {
+    padding: 2,
+    borderRadius: 2,
+    fontSize: 14,
+    color: '#fff',
+    backgroundColor: '#009951'
+  }
 });

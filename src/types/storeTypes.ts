@@ -3,6 +3,8 @@ interface IRepair {
     description: string;
     urgent: boolean;
     completed: boolean;
+    date: string;
+    dateComplete: string | null;
   }
   
   interface IPole {
