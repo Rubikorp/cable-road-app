@@ -25,9 +25,6 @@ const MainScreen: React.FC<{navigation: any}> = ({navigation}) => {
   // Состояние для сортировки по номеру
   const [sortByNumberAsc, setSortByNumberAsc] = useState(true);
 
-  // Состояние для сортировки по дате
-  const [sortByDateAsc, setSortByDateAsc] = useState(true);
-
   // Функция для фильтрации опор и ремонтов
   const filteredPoles = poles.filter(
     pole =>

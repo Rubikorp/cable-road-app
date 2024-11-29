@@ -13,6 +13,7 @@ import {
 import {BlurView} from '@react-native-community/blur';
 import {IRepair} from '../types/storeTypes';
 import {basisBtn, basisStyle} from '../styles/basisStyle';
+import {predefinedSuggestionsRepair} from '../data/dataSuqqestions';
 
 interface IProps {
   modalVisibleAddRepair: boolean; // Видимость модального окна
@@ -48,25 +49,6 @@ const ModalAddRepairs: React.FC<IProps> = ({
     setIsUrgent(false);
   };
 
-  // Предустановленные данные для подсказок
-  const predefinedSuggestions: string[] = [
-    'БК6',
-    'БК10',
-    'Лестница',
-    'Стрела',
-    'Струнка',
-    'Струнки',
-    'Стрелы',
-    'порожняя',
-    'груженная',
-    'Каретка',
-    'подшибники',
-    'подшибник',
-    'зазор',
-    'передний',
-    'замена',
-  ];
-
   // Обработчик изменения текста в поле ввода
   const handleInputChange = (text: string) => {
     setDescription(text);
@@ -74,7 +56,7 @@ const ModalAddRepairs: React.FC<IProps> = ({
     // Если есть текст, ищем подсказки
     if (text) {
       const lastWord = text.split(' ').pop() || ''; // Получаем последнее слово
-      const filteredSuggestions = predefinedSuggestions.filter(item =>
+      const filteredSuggestions = predefinedSuggestionsRepair.filter(item =>
         item.toLowerCase().startsWith(lastWord.toLowerCase()),
       );
       setSuggestions(filteredSuggestions);
@@ -140,6 +122,13 @@ const ModalAddRepairs: React.FC<IProps> = ({
     }).start();
   };
 
+  const value = {
+    setDescription,
+    predefinedSuggestionsRepair,
+    setSuggestions,
+    fadeOut,
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -163,18 +152,22 @@ const ModalAddRepairs: React.FC<IProps> = ({
           />
           {/* Отображаем подсказки, если они есть */}
           {suggestions.length > 0 && (
-            <Animated.View style={[styles.suggestionList, {opacity: fadeAnim}]}>
-              <FlatList
-                data={suggestions}
-                keyExtractor={item => item}
-                renderItem={({item}) => (
-                  <TouchableOpacity onPress={() => handleSuggestionPress(item)}>
-                    <Text style={styles.suggestion}>{item}</Text>
-                  </TouchableOpacity>
-                )}
-                keyboardShouldPersistTaps="handled" // Убираем скрытие клавиатуры при нажатии на подсказку
-              />
-            </Animated.View>
+            <View style={styles.suggestionList}>
+              <Animated.View
+                style={[ {opacity: fadeAnim}]}>
+                <FlatList
+                  data={suggestions}
+                  keyExtractor={item => item}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      onPress={() => handleSuggestionPress(item)}>
+                      <Text style={styles.suggestion}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                  keyboardShouldPersistTaps="handled" // Убираем скрытие клавиатуры при нажатии на подсказку
+                />
+              </Animated.View>
+            </View>
           )}
           <View style={styles.switchContainer}>
             <Switch
@@ -234,7 +227,7 @@ const styles = StyleSheet.create({
   },
   suggestionList: {
     position: 'absolute', // Используем абсолютное позиционирование
-    top: 77, // Позиция относительно TextInput
+    top: 70, // Позиция относительно TextInput
     left: 20,
     right: 20,
     borderWidth: 1,
